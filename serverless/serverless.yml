@@ -1,0 +1,54 @@
+service: shui
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-north-1
+  role: arn:aws:iam::586794470362:role/shuiRole
+
+functions:
+  postMessage:
+    handler: handlers/postMessage.handler # Update the path
+    events:
+      - http:
+          path: message
+          method: post
+
+  updateMessage:
+    handler: handlers/updateMessage.handler # Update the path
+    events:
+      - http:
+          path: message/{id}
+          method: put
+
+  deleteMessage:
+    handler: handlers/deleteMessage.handler # Update the path
+    events:
+      - http:
+          path: message/{id}
+          method: delete
+
+  getAllMessages:
+    handler: handlers/getAllMessages.handler # Update the path
+    events:
+      - http:
+          path: messages
+          method: get
+
+resources:
+  Resources:
+    MessagesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: MessagesTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: N
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: timestamp
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
