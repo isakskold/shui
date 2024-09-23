@@ -6,22 +6,6 @@ const docClient = new AWS.DynamoDB.DocumentClient();
 module.exports.handler = async (event) => {
   const { id } = event.pathParameters;
 
-  const getParams = {
-    TableName: "MessagesTable",
-    Key: {
-      pk: "messages",
-      id,
-    },
-  };
-
-  const existingMessage = await docClient.get(getParams).promise();
-  if (!existingMessage.Item) {
-    return {
-      statusCode: 404,
-      body: JSON.stringify({ error: "Message not found" }),
-    };
-  }
-
   const deleteParams = {
     TableName: "MessagesTable",
     Key: {
@@ -43,3 +27,5 @@ module.exports.handler = async (event) => {
     };
   }
 };
+
+//This code assumes the frontend makes sure to get the id from the response in getAllMessages. No scenario for invalid id or blank id should be possible.

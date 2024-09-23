@@ -17,39 +17,53 @@ module.exports.handler = async (event) => {
     };
   }
 
-  const getParams = {
-    TableName: "MessagesTable",
-    Key: {
-      pk: "messages", // Constant partition key
-      id, // Sort key (message ID)
-    },
-  };
-
-  const existingMessage = await docClient.get(getParams).promise();
-  if (!existingMessage.Item) {
+  const allowedFields = ["text"];
+  if (Object.keys(requestBody).some((key) => !allowedFields.includes(key))) {
     return {
-      statusCode: 404,
-      body: JSON.stringify({ error: "Message not found" }),
+      statusCode: 400,
+      body: JSON.stringify({
+        error: "Invalid fields in request body. Only 'text' is allowed.",
+      }),
     };
   }
 
-  const updateParams = {
+  // Check if the item exists
+  const getParams = {
     TableName: "MessagesTable",
     Key: {
       pk: "messages",
       id,
     },
-    UpdateExpression: "set #text = :text",
-    ExpressionAttributeNames: {
-      "#text": "text",
-    },
-    ExpressionAttributeValues: {
-      ":text": text,
-    },
-    ReturnValues: "UPDATED_NEW",
   };
 
   try {
+    const getResult = await docClient.get(getParams).promise();
+    if (!getResult.Item) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({
+          error: "Message not found with the provided ID",
+        }),
+      };
+    }
+
+    // Proceed with the update if the item exists
+    const updateParams = {
+      TableName: "MessagesTable",
+      Key: {
+        pk: "messages",
+        id,
+      },
+      UpdateExpression: "set #text = :text",
+      ExpressionAttributeNames: {
+        "#text": "text",
+      },
+      ExpressionAttributeValues: {
+        ":text": text,
+      },
+      ReturnValues: "UPDATED_NEW",
+    };
+
     const data = await docClient.update(updateParams).promise();
     return {
       statusCode: 200,

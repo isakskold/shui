@@ -8,31 +8,31 @@ provider:
 
 functions:
   postMessage:
-    handler: handlers/postMessage.handler # Update the path
+    handler: handlers/postMessage.handler
     events:
-      - http:
-          path: message
+      - httpApi:
+          path: /message
           method: post
 
   updateMessage:
-    handler: handlers/updateMessage.handler # Update the path
+    handler: handlers/updateMessage.handler
     events:
-      - http:
-          path: message/{id}
+      - httpApi:
+          path: /message/{id}
           method: put
 
   deleteMessage:
-    handler: handlers/deleteMessage.handler # Update the path
+    handler: handlers/deleteMessage.handler
     events:
-      - http:
-          path: message/{id}
+      - httpApi:
+          path: /message/{id}
           method: delete
 
   getAllMessages:
-    handler: handlers/getAllMessages.handler # Update the path
+    handler: handlers/getAllMessages.handler
     events:
-      - http:
-          path: messages
+      - httpApi:
+          path: /messages
           method: get
 
 resources:
@@ -42,13 +42,13 @@ resources:
       Properties:
         TableName: MessagesTable
         AttributeDefinitions:
-          - AttributeName: id
+          - AttributeName: pk
             AttributeType: S
-          - AttributeName: timestamp
-            AttributeType: N
-        KeySchema:
           - AttributeName: id
+            AttributeType: S # Sort key is now id
+        KeySchema:
+          - AttributeName: pk
             KeyType: HASH
-          - AttributeName: timestamp
-            KeyType: RANGE
+          - AttributeName: id
+            KeyType: RANGE # id as the Sort Key
         BillingMode: PAY_PER_REQUEST

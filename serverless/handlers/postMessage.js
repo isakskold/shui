@@ -3,6 +3,7 @@
 const AWS = require("aws-sdk");
 const { v4: uuidv4 } = require("uuid"); // For generating unique IDs
 const docClient = new AWS.DynamoDB.DocumentClient();
+const formatDate = require("./utils/formatDate");
 
 module.exports.handler = async (event) => {
   const requestBody = JSON.parse(event.body);
@@ -30,7 +31,12 @@ module.exports.handler = async (event) => {
     await docClient.put(params).promise();
     return {
       statusCode: 201,
-      body: JSON.stringify(params.Item), // Return the created item
+      body: JSON.stringify({
+        message: "Message created successfully",
+        username: params.Item.username,
+        text: params.Item.text,
+        createdAt: formatDate(params.Item.createdAt),
+      }), // Return the created item
     };
   } catch (err) {
     return {
