@@ -1,6 +1,4 @@
-// src/Messages.jsx
 import React, { useState } from "react";
-import { useMessages } from "../hooks/useMessages";
 import styled from "styled-components";
 
 // Styled components
@@ -9,10 +7,6 @@ const Container = styled.div`
   background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-`;
-
-const Title = styled.h2`
-  color: #333;
 `;
 
 const MessageList = styled.ul`
@@ -49,9 +43,13 @@ const Button = styled.button`
   }
 `;
 
-const Messages = () => {
-  const { messages, loading, error, removeMessage, modifyMessage } =
-    useMessages();
+const Messages = ({
+  messages,
+  loading,
+  error,
+  removeMessage,
+  modifyMessage,
+}) => {
   const [editMode, setEditMode] = useState(false);
   const [currentMessageId, setCurrentMessageId] = useState(null);
   const [updatedText, setUpdatedText] = useState("");
@@ -83,7 +81,6 @@ const Messages = () => {
 
   return (
     <Container>
-      <Title>Messages</Title>
       <MessageList>
         {messages.map((msg) => (
           <MessageItem key={msg.id}>
