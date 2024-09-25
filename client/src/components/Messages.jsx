@@ -1,5 +1,5 @@
 // src/Messages.jsx
-import React from "react";
+import React, { useState } from "react";
 import { useMessages } from "../hooks/useMessages";
 import styled from "styled-components";
 
@@ -36,8 +36,25 @@ const Timestamp = styled.em`
   color: #777;
 `;
 
+const Button = styled.button`
+  margin-left: 10px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  &:hover {
+    background-color: #0056b3;
+  }
+`;
+
 const Messages = () => {
-  const { messages, loading, error } = useMessages();
+  const { messages, loading, error, removeMessage, modifyMessage } =
+    useMessages();
+  const [editMode, setEditMode] = useState(false);
+  const [currentMessageId, setCurrentMessageId] = useState(null);
+  const [updatedText, setUpdatedText] = useState("");
 
   if (loading) {
     return <p>Loading messages...</p>;
@@ -47,6 +64,23 @@ const Messages = () => {
     return <p>Error: {error}</p>;
   }
 
+  const handleDelete = (id) => {
+    removeMessage(id);
+  };
+
+  const handleEdit = (msg) => {
+    setEditMode(true);
+    setCurrentMessageId(msg.id);
+    setUpdatedText(msg.text);
+  };
+
+  const handleUpdate = () => {
+    modifyMessage(currentMessageId, { text: updatedText });
+    setEditMode(false);
+    setCurrentMessageId(null);
+    setUpdatedText("");
+  };
+
   return (
     <Container>
       <Title>Messages</Title>
@@ -55,9 +89,21 @@ const Messages = () => {
           <MessageItem key={msg.id}>
             <Username>{msg.username}:</Username> {msg.text}{" "}
             <Timestamp>({msg.createdAt})</Timestamp>
+            <Button onClick={() => handleEdit(msg)}>Edit</Button>
+            <Button onClick={() => handleDelete(msg.id)}>Delete</Button>
           </MessageItem>
         ))}
       </MessageList>
+      {editMode && (
+        <div>
+          <input
+            type="text"
+            value={updatedText}
+            onChange={(e) => setUpdatedText(e.target.value)}
+          />
+          <Button onClick={handleUpdate}>Update Message</Button>
+        </div>
+      )}
     </Container>
   );
 };
