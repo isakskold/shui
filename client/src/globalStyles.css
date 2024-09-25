@@ -1,0 +1,26 @@
+:root {
+  background-color: rgba(87, 49, 115, 0.802);
+  --primary-blue: #007bff;
+  --primary-blue-hover: #0056b3;
+}
+
+* {
+  padding: 0;
+  list-style: none;
+  margin: 0;
+  text-decoration: none;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+body {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 3rem; /* Minimum space on left and right */
+}
+
+@media (max-width: 300px) {
+  body {
+    padding: 0;
+  }
+}

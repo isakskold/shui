@@ -2,6 +2,7 @@ import React from "react";
 import Messages from "./components/Messages";
 import PostMessage from "./components/PostMessage";
 import { useMessages } from "./hooks/useMessages";
+import "./globalStyles.css";
 
 function App() {
   const {

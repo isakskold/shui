@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { useMessages } from "../hooks/useMessages";
 
 // Styled components
 const Container = styled.div`
@@ -15,12 +14,12 @@ const Button = styled.button`
   padding: 10px 15px;
   border: none;
   border-radius: 5px;
-  background-color: #007bff;
+  background-color: var(--primary-blue);
   color: white;
   cursor: pointer;
 
   &:hover {
-    background-color: #0056b3;
+    background-color: var(--primary-blue-hover);
   }
 `;
 

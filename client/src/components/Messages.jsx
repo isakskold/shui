@@ -10,7 +10,6 @@ const Container = styled.div`
 `;
 
 const MessageList = styled.ul`
-  list-style-type: none;
   padding: 0;
 `;
 
@@ -23,47 +22,58 @@ const MessageItem = styled.li`
 `;
 
 const Username = styled.strong`
-  color: #007bff;
+  color: var(--primary-blue);
 `;
 
 const Timestamp = styled.em`
   color: #777;
+  display: block;
 `;
 
 const Button = styled.button`
-  margin-left: 10px;
   padding: 5px 10px;
   border: none;
+  font-size: 0.8rem;
   border-radius: 5px;
-  background-color: #007bff;
+  background-color: var(--primary-blue);
   color: white;
   cursor: pointer;
   &:hover {
-    background-color: #0056b3;
+    background-color: var(--primary-blue-hover);
   }
 `;
 
-const Messages = ({
-  messages,
-  loading,
-  error,
-  removeMessage,
-  modifyMessage,
-}) => {
+const MessageActions = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+`;
+
+const LoadingText = styled.span`
+  font-size: 0.8rem;
+  color: #777;
+`;
+
+const Messages = ({ messages, error, removeMessage, modifyMessage }) => {
   const [editMode, setEditMode] = useState(false);
   const [currentMessageId, setCurrentMessageId] = useState(null);
   const [updatedText, setUpdatedText] = useState("");
-
-  if (loading) {
-    return <p>Loading messages...</p>;
-  }
+  const [loadingMessageId, setLoadingMessageId] = useState(null); // Tracks the message being updated
+  const [deletingMessageId, setDeletingMessageId] = useState(null); // Tracks the message being deleted
 
   if (error) {
     return <p>Error: {error}</p>;
   }
 
-  const handleDelete = (id) => {
-    removeMessage(id);
+  const handleDelete = async (id) => {
+    setDeletingMessageId(id); // Set the deleting state
+    try {
+      await removeMessage(id);
+    } finally {
+      setDeletingMessageId(null); // Reset after deletion
+    }
   };
 
   const handleEdit = (msg) => {
@@ -72,11 +82,16 @@ const Messages = ({
     setUpdatedText(msg.text);
   };
 
-  const handleUpdate = () => {
-    modifyMessage(currentMessageId, { text: updatedText });
-    setEditMode(false);
-    setCurrentMessageId(null);
-    setUpdatedText("");
+  const handleUpdate = async () => {
+    setLoadingMessageId(currentMessageId); // Set the loading state for the message being updated
+    try {
+      await modifyMessage(currentMessageId, { text: updatedText });
+      setEditMode(false);
+      setCurrentMessageId(null);
+      setUpdatedText("");
+    } finally {
+      setLoadingMessageId(null); // Reset after update
+    }
   };
 
   return (
@@ -86,8 +101,17 @@ const Messages = ({
           <MessageItem key={msg.id}>
             <Username>{msg.username}:</Username> {msg.text}{" "}
             <Timestamp>({msg.createdAt})</Timestamp>
-            <Button onClick={() => handleEdit(msg)}>Edit</Button>
-            <Button onClick={() => handleDelete(msg.id)}>Delete</Button>
+            <MessageActions>
+              <Button onClick={() => handleEdit(msg)}>Edit</Button>
+              <Button onClick={() => handleDelete(msg.id)}>Delete</Button>
+              {/* Conditionally show loading text for deleting and updating */}
+              {loadingMessageId === msg.id && (
+                <LoadingText>Updating...</LoadingText>
+              )}
+              {deletingMessageId === msg.id && (
+                <LoadingText>Deleting...</LoadingText>
+              )}
+            </MessageActions>
           </MessageItem>
         ))}
       </MessageList>
