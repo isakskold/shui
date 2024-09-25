@@ -1,2 +1,3 @@
 .serverless/
 node_modules/
+handlers/utils/apiKeyAuthorizer.js

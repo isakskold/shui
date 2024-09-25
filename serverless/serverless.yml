@@ -35,6 +35,9 @@ functions:
           path: /messages
           method: get
 
+  apiKeyAuthorizer: # Define your API Key authorizer
+    handler: handlers/utils/apiKeyAuthorizer.handler
+
 resources:
   Resources:
     MessagesTable:
