@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import styled from "styled-components";
+import TextInput from "./utils/TextInput";
 
 // Styled components
 const Container = styled.div`
@@ -26,27 +27,34 @@ const Button = styled.button`
 const Form = styled.form`
   display: flex;
   flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
 `;
 
-const Input = styled.input`
-  margin: 10px 0;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+const LoadingText = styled.span`
+  font-size: 0.8rem;
+  color: #777;
+  margin: 0 0.5rem;
 `;
 
 const PostMessage = ({ postMessage }) => {
-  const [username, setUsername] = useState("");
-  const [text, setText] = useState("");
+  const usernameRef = useRef(null);
+  const textRef = useRef(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // State for loading
 
-  const handlePostMessage = (e) => {
+  const handlePostMessage = async (e) => {
     e.preventDefault();
+    const username = usernameRef.current.value;
+    const text = textRef.current.value;
+
     if (username && text) {
-      postMessage({ username, text });
-      setUsername("");
-      setText("");
+      setIsLoading(true); // Set loading state to true
+      await postMessage({ username, text }); // Assuming postMessage is a promise
+      usernameRef.current.value = ""; // Clear the input field
+      textRef.current.value = ""; // Clear the textarea
       setIsFormVisible(false); // Hide the form after posting
+      setIsLoading(false); // Reset loading state
     }
   };
 
@@ -55,20 +63,20 @@ const PostMessage = ({ postMessage }) => {
       <Button onClick={() => setIsFormVisible((prev) => !prev)}>
         Post a message
       </Button>
+      {isLoading && <LoadingText>Posting message...</LoadingText>}{" "}
+      {/* Show loading text */}
       {isFormVisible && (
         <Form onSubmit={handlePostMessage}>
-          <Input
+          <TextInput
+            ref={usernameRef} // Assign the ref
             type="text"
             placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
             required
           />
-          <Input
-            type="text"
+          <TextInput
+            ref={textRef} // Assign the ref
+            type="textarea"
             placeholder="Your message"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
             required
           />
           <Button type="submit">Publish message</Button>

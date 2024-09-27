@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
+import TextInput from "./utils/TextInput";
 
 // Styled components
 const Container = styled.div`
-  padding: 20px;
-  background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 `;
@@ -20,6 +19,8 @@ const MessageItem = styled.li`
   border-radius: 5px;
   background-color: #fff;
 `;
+
+const MessageText = styled.p``;
 
 const Username = styled.strong`
   color: var(--primary-blue);
@@ -54,14 +55,21 @@ const MessageActions = styled.div`
 const LoadingText = styled.span`
   font-size: 0.8rem;
   color: #777;
+  margin: 0 0.5rem;
+`;
+
+const UpdateForm = styled.form`
+  margin-top: 0.5rem;
+  overflow: hidden;
 `;
 
 const Messages = ({ messages, error, removeMessage, modifyMessage }) => {
-  const [editMode, setEditMode] = useState(false);
   const [currentMessageId, setCurrentMessageId] = useState(null);
-  const [updatedText, setUpdatedText] = useState("");
   const [loadingMessageId, setLoadingMessageId] = useState(null); // Tracks the message being updated
   const [deletingMessageId, setDeletingMessageId] = useState(null); // Tracks the message being deleted
+  const textareaRef = useRef(null); // Add this line back
+
+  console.log(messages);
 
   if (error) {
     return <p>Error: {error}</p>;
@@ -69,6 +77,7 @@ const Messages = ({ messages, error, removeMessage, modifyMessage }) => {
 
   const handleDelete = async (id) => {
     setDeletingMessageId(id); // Set the deleting state
+
     try {
       await removeMessage(id);
     } finally {
@@ -77,18 +86,24 @@ const Messages = ({ messages, error, removeMessage, modifyMessage }) => {
   };
 
   const handleEdit = (msg) => {
-    setEditMode(true);
     setCurrentMessageId(msg.id);
-    setUpdatedText(msg.text);
+    // Use setTimeout to ensure the textarea is rendered before accessing its value
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.value = msg.text; // This will now work correctly
+      }
+    }, 0);
   };
 
-  const handleUpdate = async () => {
+  const handleUpdate = async (e) => {
+    e.preventDefault(); // Prevent the form from reloading the page
+
+    const updatedText = textareaRef.current.value; // Get the value from the textarea
     setLoadingMessageId(currentMessageId); // Set the loading state for the message being updated
     try {
       await modifyMessage(currentMessageId, { text: updatedText });
-      setEditMode(false);
-      setCurrentMessageId(null);
-      setUpdatedText("");
+      setCurrentMessageId(null); // Clear the current message ID after updating
+      textareaRef.current.value = ""; // Clear the textarea after submission
     } finally {
       setLoadingMessageId(null); // Reset after update
     }
@@ -99,32 +114,36 @@ const Messages = ({ messages, error, removeMessage, modifyMessage }) => {
       <MessageList>
         {messages.map((msg) => (
           <MessageItem key={msg.id}>
-            <Username>{msg.username}:</Username> {msg.text}{" "}
+            <Username>{msg.username}:</Username>
+            <MessageText>{msg.text}</MessageText>
             <Timestamp>({msg.createdAt})</Timestamp>
             <MessageActions>
               <Button onClick={() => handleEdit(msg)}>Edit</Button>
               <Button onClick={() => handleDelete(msg.id)}>Delete</Button>
-              {/* Conditionally show loading text for deleting and updating */}
-              {loadingMessageId === msg.id && (
-                <LoadingText>Updating...</LoadingText>
-              )}
+              {/* Conditionally show loading text for deleting */}
               {deletingMessageId === msg.id && (
                 <LoadingText>Deleting...</LoadingText>
               )}
             </MessageActions>
+            {/* Conditionally show the edit form inside the MessageItem */}
+            {currentMessageId === msg.id && (
+              <UpdateForm onSubmit={handleUpdate}>
+                <TextInput
+                  type="textarea"
+                  placeholder=""
+                  ref={textareaRef}
+                  required
+                />
+                <Button type="submit">Update Message</Button>
+                {/* Conditionally show loading text for updating */}
+                {loadingMessageId === msg.id && (
+                  <LoadingText>Updating...</LoadingText>
+                )}
+              </UpdateForm>
+            )}
           </MessageItem>
         ))}
       </MessageList>
-      {editMode && (
-        <div>
-          <input
-            type="text"
-            value={updatedText}
-            onChange={(e) => setUpdatedText(e.target.value)}
-          />
-          <Button onClick={handleUpdate}>Update Message</Button>
-        </div>
-      )}
     </Container>
   );
 };
