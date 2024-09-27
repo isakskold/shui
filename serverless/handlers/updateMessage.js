@@ -2,6 +2,7 @@
 
 const AWS = require("aws-sdk");
 const docClient = new AWS.DynamoDB.DocumentClient();
+const formatDate = require("./utils/formatDate");
 
 module.exports.handler = async (event) => {
   const { id } = event.pathParameters;
@@ -61,13 +62,19 @@ module.exports.handler = async (event) => {
       ExpressionAttributeValues: {
         ":text": text,
       },
-      ReturnValues: "UPDATED_NEW",
+      ReturnValues: "ALL_NEW",
     };
 
     const data = await docClient.update(updateParams).promise();
+    // Return the updated message details
     return {
       statusCode: 200,
-      body: JSON.stringify(data.Attributes),
+      body: JSON.stringify({
+        id, // Return the ID for reference
+        username: getResult.Item.username, // Include the username from the original item
+        text: data.Attributes.text, // The updated text
+        createdAt: formatDate(getResult.Item.createdAt), // Include the original creation timestamp
+      }),
     };
   } catch (err) {
     return {

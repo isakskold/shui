@@ -32,7 +32,7 @@ module.exports.handler = async (event) => {
     return {
       statusCode: 201,
       body: JSON.stringify({
-        message: "Message created successfully",
+        id: params.Item.id,
         username: params.Item.username,
         text: params.Item.text,
         createdAt: formatDate(params.Item.createdAt),
