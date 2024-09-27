@@ -1,0 +1,57 @@
+service: shui
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: eu-north-1
+  role: arn:aws:iam::586794470362:role/shuiRole
+
+functions:
+  postMessage:
+    handler: handlers/postMessage.handler
+    events:
+      - httpApi:
+          path: /message
+          method: post
+
+  updateMessage:
+    handler: handlers/updateMessage.handler
+    events:
+      - httpApi:
+          path: /message/{id}
+          method: put
+
+  deleteMessage:
+    handler: handlers/deleteMessage.handler
+    events:
+      - httpApi:
+          path: /message/{id}
+          method: delete
+
+  getAllMessages:
+    handler: handlers/getAllMessages.handler
+    events:
+      - httpApi:
+          path: /messages
+          method: get
+
+  apiKeyAuthorizer: # Define your API Key authorizer
+    handler: handlers/utils/apiKeyAuthorizer.handler
+
+resources:
+  Resources:
+    MessagesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: MessagesTable
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S # Sort key is now id
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE # id as the Sort Key
+        BillingMode: PAY_PER_REQUEST
