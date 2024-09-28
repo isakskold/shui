@@ -48,10 +48,26 @@ resources:
           - AttributeName: pk
             AttributeType: S
           - AttributeName: id
-            AttributeType: S # Sort key is now id
+            AttributeType: S
         KeySchema:
           - AttributeName: pk
             KeyType: HASH
           - AttributeName: id
-            KeyType: RANGE # id as the Sort Key
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: UsersTable
+        AttributeDefinitions:
+          - AttributeName: pk
+            AttributeType: S
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: pk
+            KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
