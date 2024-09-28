@@ -39,21 +39,21 @@ functions:
   # USER FUNCTIONS
 
   registerUser:
-    handler: handlers/registerUser.handler
+    handler: handlers/users/registerUser.handler
     events:
       - httpApi:
           path: /users/register
           method: post
 
   loginUser:
-    handler: handlers/loginUser.handler
+    handler: handlers/users/loginUser.handler
     events:
       - httpApi:
           path: /users/login
           method: post
 
   getUser:
-    handler: handlers/getUser.handler
+    handler: handlers/users/getUser.handler
     events:
       - httpApi:
           path: /users/{id}
