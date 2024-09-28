@@ -1,8 +1,7 @@
 "use strict";
 
-const AWS = require("aws-sdk");
+const docClient = require("../utils/dbClient");
 const { v4: uuidv4 } = require("uuid"); // For generating unique IDs
-const docClient = new AWS.DynamoDB.DocumentClient();
 const formatDate = require("../utils/formatDate");
 
 module.exports.handler = async (event) => {

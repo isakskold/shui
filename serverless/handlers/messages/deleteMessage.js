@@ -1,7 +1,6 @@
 "use strict";
 
-const AWS = require("aws-sdk");
-const docClient = new AWS.DynamoDB.DocumentClient();
+const docClient = require("../utils/dbClient");
 
 module.exports.handler = async (event) => {
   const { id } = event.pathParameters;
