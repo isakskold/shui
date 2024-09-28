@@ -5,6 +5,10 @@ const docClient = require("../utils/dbClient"); // Import the DocumentClient
 const { v4: uuidv4 } = require("uuid"); // For generating unique IDs
 const bcrypt = require("bcryptjs"); // Use bcryptjs for password hashing
 const formatDate = require("../utils/formatDate");
+const {
+  validateUsername,
+  validateEmail,
+} = require("./utils/nameAndEmailFormatValidation");
 
 module.exports.handler = async (event) => {
   const requestBody = JSON.parse(event.body);
@@ -24,6 +28,17 @@ module.exports.handler = async (event) => {
     return {
       statusCode: 400,
       body: JSON.stringify({ error: "Passwords do not match" }),
+    };
+  }
+
+  // Validate username and email
+  try {
+    validateUsername(username);
+    validateEmail(email);
+  } catch (error) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: error.message }),
     };
   }
 
@@ -64,7 +79,7 @@ module.exports.handler = async (event) => {
         username,
         email,
         hashedPassword,
-        createdAt: formatDate(Date.now()),
+        createdAt: Date.now(),
       },
     };
 
@@ -77,7 +92,7 @@ module.exports.handler = async (event) => {
         id: newUserParams.Item.id,
         username: newUserParams.Item.username,
         email: newUserParams.Item.email,
-        createdAt: newUserParams.Item.createdAt,
+        createdAt: formatDate(newUserParams.Item.createdAt),
       }),
     };
   } catch (err) {
