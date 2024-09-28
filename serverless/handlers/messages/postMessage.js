@@ -3,7 +3,7 @@
 const AWS = require("aws-sdk");
 const { v4: uuidv4 } = require("uuid"); // For generating unique IDs
 const docClient = new AWS.DynamoDB.DocumentClient();
-const formatDate = require("./utils/formatDate");
+const formatDate = require("../utils/formatDate");
 
 module.exports.handler = async (event) => {
   const requestBody = JSON.parse(event.body);

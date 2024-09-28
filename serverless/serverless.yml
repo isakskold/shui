@@ -7,33 +7,59 @@ provider:
   role: arn:aws:iam::586794470362:role/shuiRole
 
 functions:
+  # MESSAGE FUNCTIONS
   postMessage:
-    handler: handlers/postMessage.handler
+    handler: handlers/messages/postMessage.handler
     events:
       - httpApi:
           path: /message
           method: post
 
   updateMessage:
-    handler: handlers/updateMessage.handler
+    handler: handlers/messages/updateMessage.handler
     events:
       - httpApi:
           path: /message/{id}
           method: put
 
   deleteMessage:
-    handler: handlers/deleteMessage.handler
+    handler: handlers/messages/deleteMessage.handler
     events:
       - httpApi:
           path: /message/{id}
           method: delete
 
   getAllMessages:
-    handler: handlers/getAllMessages.handler
+    handler: handlers/messages/getAllMessages.handler
     events:
       - httpApi:
           path: /messages
           method: get
+
+  # USER FUNCTIONS
+
+  registerUser:
+    handler: handlers/registerUser.handler
+    events:
+      - httpApi:
+          path: /users/register
+          method: post
+
+  loginUser:
+    handler: handlers/loginUser.handler
+    events:
+      - httpApi:
+          path: /users/login
+          method: post
+
+  getUser:
+    handler: handlers/getUser.handler
+    events:
+      - httpApi:
+          path: /users/{id}
+          method: get
+
+  # UTIL FUNCTIONS
 
   apiKeyAuthorizer: # Define your API Key authorizer
     handler: handlers/utils/apiKeyAuthorizer.handler
