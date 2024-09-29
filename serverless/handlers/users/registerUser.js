@@ -68,11 +68,21 @@ module.exports.handler = async (event) => {
     const existingEmail = await docClient.query(emailParams).promise();
 
     // Check for duplicates
-    if (existingUsername.Items.length > 0 || existingEmail.Items.length > 0) {
+    if (existingUsername.Items.length > 0) {
       return {
         statusCode: 400,
         body: JSON.stringify({
-          error: "Username or email is taken",
+          error: "Username is taken",
+        }),
+      };
+    }
+
+    // Check for duplicates
+    if (existingEmail.Items.length > 0) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: "Email is taken",
         }),
       };
     }
