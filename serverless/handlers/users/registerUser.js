@@ -31,7 +31,7 @@ module.exports.handler = async (event) => {
     };
   }
 
-  // Validate username and email
+  // Validate username and email formats
   try {
     validateUsername(username);
     validateEmail(email);
@@ -42,28 +42,37 @@ module.exports.handler = async (event) => {
     };
   }
 
-  // Check for existing users
-  const params = {
+  // Check for existing users using the Global Secondary Indexes
+  const usernameParams = {
     TableName: "UsersTable",
-    KeyConditionExpression: "pk = :pk",
+    IndexName: "pk-username-index", // Specify the GSI for username
+    KeyConditionExpression: "pk = :pk and username = :username",
     ExpressionAttributeValues: {
       ":pk": "user",
+      ":username": username,
+    },
+  };
+
+  const emailParams = {
+    TableName: "UsersTable",
+    IndexName: "pk-email-index", // Specify the GSI for email
+    KeyConditionExpression: "pk = :pk and email = :email",
+    ExpressionAttributeValues: {
+      ":pk": "user",
+      ":email": email,
     },
   };
 
   try {
-    const existingUsers = await docClient.query(params).promise();
+    const existingUsername = await docClient.query(usernameParams).promise();
+    const existingEmail = await docClient.query(emailParams).promise();
 
     // Check for duplicates
-    const userExists = existingUsers.Items.find(
-      (user) => user.username === username || user.email === email
-    );
-
-    if (userExists) {
+    if (existingUsername.Items.length > 0 || existingEmail.Items.length > 0) {
       return {
         statusCode: 400,
         body: JSON.stringify({
-          error: "Username or email already exists",
+          error: "Username or email is taken",
         }),
       };
     }
