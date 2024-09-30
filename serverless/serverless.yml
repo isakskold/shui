@@ -61,8 +61,13 @@ functions:
 
   # UTIL FUNCTIONS
 
-  apiKeyAuthorizer: # Define your API Key authorizer
+  apiKeyAuthorizer: # Attached to routes in API Gateway
     handler: handlers/utils/apiKeyAuthorizer.handler
+
+  rotateSecrets:
+    handler: handlers/utils/secretGenerator.handler
+    events:
+      - schedule: rate(1 day)
 
 resources:
   Resources:
@@ -101,6 +106,7 @@ resources:
           - AttributeName: id
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
+
         GlobalSecondaryIndexes:
           - IndexName: pk-username-index
             KeySchema:
@@ -109,7 +115,10 @@ resources:
               - AttributeName: username
                 KeyType: RANGE
             Projection:
-              ProjectionType: KEYS_ONLY
+              ProjectionType: INCLUDE
+              NonKeyAttributes:
+                - hashedPassword
+
           - IndexName: pk-email-index
             KeySchema:
               - AttributeName: pk
@@ -118,3 +127,39 @@ resources:
                 KeyType: RANGE
             Projection:
               ProjectionType: KEYS_ONLY
+
+    JwtSecret:
+      Type: AWS::SecretsManager::Secret
+      Properties:
+        Name: JwtSecret
+        Description: Secret for JWT
+        SecretString: !Sub |
+          {
+            "JWT_SECRET_KEY": "${env:JWT_SECRET_KEY}"
+          }
+
+    RefreshJwtSecret:
+      Type: AWS::SecretsManager::Secret
+      Properties:
+        Name: RefreshJwtSecret
+        Description: Secret for Refresh JWT
+        SecretString: !Sub |
+          {
+            "JWT_REFRESH_SECRET_KEY": "${env:JWT_REFRESH_SECRET_KEY}"
+          }
+
+    JwtSecretRotation:
+      Type: AWS::SecretsManager::RotationSchedule
+      Properties:
+        SecretId: !Ref JwtSecret
+        RotationLambdaARN: arn:aws:lambda:eu-north-1:586794470362:function:shui-dev-rotateSecrets
+        RotationRules:
+          AutomaticallyAfterDays: 1 # Define the rotation schedule
+
+    RefreshJwtSecretRotation:
+      Type: AWS::SecretsManager::RotationSchedule
+      Properties:
+        SecretId: !Ref RefreshJwtSecret
+        RotationLambdaARN: arn:aws:lambda:eu-north-1:586794470362:function:shui-dev-rotateSecrets
+        RotationRules:
+          AutomaticallyAfterDays: 7 # Define the rotation schedule
