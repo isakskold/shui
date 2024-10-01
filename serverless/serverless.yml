@@ -61,10 +61,13 @@ functions:
 
   # UTIL FUNCTIONS
 
-  apiKeyAuthorizer: # Attached to routes in API Gateway
+  apiKeyAuthorizer: # Attached to routes in API Gateway. Prevents misuse of api.
     handler: handlers/utils/apiKeyAuthorizer.handler
 
-  rotateSecrets:
+  authenticateJwt: # Attached to routes in API Gateway. Checks if the provided JWT is valid
+    handler: handlers/utils/authenticateJwt.handler
+
+  rotateSecrets: # Used to generate secret keys that JWT generator uses.
     handler: handlers/utils/secretGenerator.handler
     events:
       - schedule: rate(1 day)
