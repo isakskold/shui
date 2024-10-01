@@ -58,6 +58,7 @@ exports.handler = async (event) => {
       const { accessToken, refreshToken } = await generateTokens(username);
 
       return {
+        // Frontend handles returned tokens
         statusCode: 200,
         body: JSON.stringify({
           message: "Login successful",
