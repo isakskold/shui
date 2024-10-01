@@ -13,6 +13,21 @@ const apiClient = axios.create({
   },
 });
 
+// Add a request interceptor to include the Authorization header
+apiClient.interceptors.request.use(
+  (config) => {
+    const accessToken = localStorage.getItem("accessToken");
+    if (accessToken) {
+      config.headers.Authorization = accessToken; // Add the access token to the headers
+    }
+    return config;
+  },
+  (error) => {
+    // Handle request error
+    return Promise.reject(error);
+  }
+);
+
 // Fetch messages from DynamoDB
 export const fetchMessages = async () => {
   try {
@@ -53,6 +68,59 @@ export const updateMessage = async (id, data) => {
     return response.data;
   } catch (error) {
     console.error("Error updating message:", error);
+    throw error;
+  }
+};
+
+// Login user
+export const loginUser = async (credentials) => {
+  try {
+    const response = await apiClient.post("/users/login", credentials);
+    const { accessToken, refreshToken } = response.data;
+
+    // Store tokens in localStorage
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
+    console.log(localStorage.accessToken, localStorage.refreshToken);
+
+    // Return user data or any additional info if needed
+    return response.data;
+  } catch (error) {
+    console.error("Error logging in:", error);
+    throw error;
+  }
+};
+
+// Logout user
+export const logoutUser = () => {
+  // Remove tokens from localStorage
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
+
+  // Optionally clear Authorization header
+  delete apiClient.defaults.headers.Authorization;
+};
+
+// Refresh access token
+export const refreshAccessToken = async () => {
+  const refreshToken = localStorage.getItem("refreshToken");
+
+  if (!refreshToken) {
+    throw new Error("No refresh token available.");
+  }
+
+  try {
+    const response = await apiClient.post("/users/refreshToken", {
+      refreshToken,
+    });
+    const { accessToken } = response.data;
+
+    // Store the new access token
+    localStorage.setItem("accessToken", accessToken);
+
+    return accessToken; // Return the new access token if needed
+  } catch (error) {
+    console.error("Error refreshing access token:", error);
     throw error;
   }
 };
