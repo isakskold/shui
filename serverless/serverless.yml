@@ -59,6 +59,13 @@ functions:
           path: /users/{id}
           method: get
 
+  refreshToken: # Endpoint that refreshes both access and refresh token when access token has expired
+    handler: handlers/users/utils/refreshToken
+    events:
+      - httpApi:
+          path: /users/refreshToken
+          method: post
+
   # UTIL FUNCTIONS
 
   apiKeyAuthorizer: # Attached to routes in API Gateway. Prevents misuse of api.

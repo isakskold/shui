@@ -56,7 +56,10 @@ export const deleteMessage = async (id) => {
     const response = await apiClient.delete(`/message/${id}`);
     return response.data;
   } catch (error) {
-    console.error("Error deleting message:", error);
+    console.error(
+      "Error deleting message:",
+      error.response ? error.response.data : error
+    );
     throw error;
   }
 };
@@ -99,28 +102,4 @@ export const logoutUser = () => {
 
   // Optionally clear Authorization header
   delete apiClient.defaults.headers.Authorization;
-};
-
-// Refresh access token
-export const refreshAccessToken = async () => {
-  const refreshToken = localStorage.getItem("refreshToken");
-
-  if (!refreshToken) {
-    throw new Error("No refresh token available.");
-  }
-
-  try {
-    const response = await apiClient.post("/users/refreshToken", {
-      refreshToken,
-    });
-    const { accessToken } = response.data;
-
-    // Store the new access token
-    localStorage.setItem("accessToken", accessToken);
-
-    return accessToken; // Return the new access token if needed
-  } catch (error) {
-    console.error("Error refreshing access token:", error);
-    throw error;
-  }
 };

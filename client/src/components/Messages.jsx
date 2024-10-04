@@ -63,17 +63,13 @@ const UpdateForm = styled.form`
   overflow: hidden;
 `;
 
-const Messages = ({ messages, error, removeMessage, modifyMessage }) => {
+const Messages = ({ messages, removeMessage, modifyMessage }) => {
   const [currentMessageId, setCurrentMessageId] = useState(null);
   const [loadingMessageId, setLoadingMessageId] = useState(null); // Tracks the message being updated
   const [deletingMessageId, setDeletingMessageId] = useState(null); // Tracks the message being deleted
   const textareaRef = useRef(null); // Add this line back
 
   console.log(messages);
-
-  if (error) {
-    return <p>Error: {error}</p>;
-  }
 
   const handleDelete = async (id) => {
     setDeletingMessageId(id); // Set the deleting state

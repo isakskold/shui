@@ -3,7 +3,7 @@
 const jwt = require("jsonwebtoken");
 const AWS = require("aws-sdk");
 const secretsManager = new AWS.SecretsManager();
-const { generateTokens } = require("../utils/jwtUtil");
+const { generateTokens } = require("./generateJwt");
 
 exports.handler = async (event) => {
   const { refreshToken } = JSON.parse(event.body);
@@ -27,14 +27,17 @@ exports.handler = async (event) => {
     // Verify refresh token
     const decoded = jwt.verify(refreshToken, refreshSecret);
 
-    // If valid, generate new access token
-    const { accessToken } = await generateTokens(decoded.username);
+    // If valid, generate new access and refresh tokens
+    const { accessToken, refreshToken: newRefreshToken } = await generateTokens(
+      decoded.username
+    );
 
     return {
       statusCode: 200,
       body: JSON.stringify({
         message: "Token refreshed successfully",
         accessToken,
+        refreshToken: newRefreshToken,
       }),
     };
   } catch (error) {
