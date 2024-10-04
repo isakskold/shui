@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import styled from "styled-components"; // Import styled-components
-import { loginUser } from "../api";
 
 // Styled components
 const Container = styled.div`
@@ -63,8 +62,6 @@ const Login = () => {
     setError(null); // Reset error state
 
     try {
-      const credentials = { username, password };
-      await loginUser(credentials);
       // Redirect or show a success message here after successful login
       console.log("Login successful!");
     } catch (err) {
