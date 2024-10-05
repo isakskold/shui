@@ -36,48 +36,10 @@ functions:
           path: /messages
           method: get
 
-  # USER FUNCTIONS
-
-  registerUser:
-    handler: handlers/users/registerUser.handler
-    events:
-      - httpApi:
-          path: /users/register
-          method: post
-
-  loginUser:
-    handler: handlers/users/loginUser.handler
-    events:
-      - httpApi:
-          path: /users/login
-          method: post
-
-  getUser:
-    handler: handlers/users/getUser.handler
-    events:
-      - httpApi:
-          path: /users/{id}
-          method: get
-
-  refreshToken: # Endpoint that refreshes both access and refresh token when access token has expired
-    handler: handlers/users/utils/refreshToken
-    events:
-      - httpApi:
-          path: /users/refreshToken
-          method: post
-
   # UTIL FUNCTIONS
 
   apiKeyAuthorizer: # Attached to routes in API Gateway. Prevents misuse of api.
     handler: handlers/utils/apiKeyAuthorizer.handler
-
-  authenticateJwt: # Attached to routes in API Gateway. Checks if the provided JWT is valid
-    handler: handlers/utils/authenticateJwt.handler
-
-  rotateSecrets: # Used to generate secret keys that JWT generator uses.
-    handler: handlers/utils/secretGenerator.handler
-    events:
-      - schedule: rate(1 day)
 
 resources:
   Resources:
@@ -96,80 +58,3 @@ resources:
           - AttributeName: id
             KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
-
-    UsersTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: UsersTable
-        AttributeDefinitions:
-          - AttributeName: pk
-            AttributeType: S
-          - AttributeName: id
-            AttributeType: S
-          - AttributeName: username
-            AttributeType: S
-          - AttributeName: email
-            AttributeType: S
-        KeySchema:
-          - AttributeName: pk
-            KeyType: HASH
-          - AttributeName: id
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
-
-        GlobalSecondaryIndexes:
-          - IndexName: pk-username-index
-            KeySchema:
-              - AttributeName: pk
-                KeyType: HASH
-              - AttributeName: username
-                KeyType: RANGE
-            Projection:
-              ProjectionType: INCLUDE
-              NonKeyAttributes:
-                - hashedPassword
-
-          - IndexName: pk-email-index
-            KeySchema:
-              - AttributeName: pk
-                KeyType: HASH
-              - AttributeName: email
-                KeyType: RANGE
-            Projection:
-              ProjectionType: KEYS_ONLY
-
-    JwtSecret:
-      Type: AWS::SecretsManager::Secret
-      Properties:
-        Name: JwtSecret
-        Description: Secret for JWT
-        SecretString: !Sub |
-          {
-            "JWT_SECRET_KEY": "${env:JWT_SECRET_KEY}"
-          }
-
-    RefreshJwtSecret:
-      Type: AWS::SecretsManager::Secret
-      Properties:
-        Name: RefreshJwtSecret
-        Description: Secret for Refresh JWT
-        SecretString: !Sub |
-          {
-            "JWT_REFRESH_SECRET_KEY": "${env:JWT_REFRESH_SECRET_KEY}"
-          }
-
-    JwtSecretRotation:
-      Type: AWS::SecretsManager::RotationSchedule
-      Properties:
-        SecretId: !Ref JwtSecret
-        RotationLambdaARN: arn:aws:lambda:eu-north-1:586794470362:function:shui-dev-rotateSecrets
-        RotationRules:
-          AutomaticallyAfterDays: 1 # Define the rotation schedule
-
-    RefreshJwtSecretRotation:
-      Type: AWS::SecretsManager::RotationSchedule
-      Properties:
-        SecretId: !Ref RefreshJwtSecret
-        RotationLambdaARN: arn:aws:lambda:eu-north-1:586794470362:function:shui-dev-rotateSecrets
-        RotationRules:
-          AutomaticallyAfterDays: 7 # Define the rotation schedule

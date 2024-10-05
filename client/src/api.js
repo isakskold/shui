@@ -3,6 +3,7 @@ import axios from "axios";
 
 const API_BASE_URL = "https://a4vg2fyyoj.execute-api.eu-north-1.amazonaws.com";
 const API_KEY = import.meta.env.VITE_API_KEY;
+import { checkAuthStatus } from "./utils/checkIfSignedIn";
 
 // Create an instance of Axios with the base URL
 const apiClient = axios.create({
@@ -27,6 +28,7 @@ export const fetchMessages = async () => {
 // Send message to DynamoDB
 export const sendMessage = async (data) => {
   try {
+    await checkAuthStatus();
     const response = await apiClient.post("/message", data);
     return response.data;
   } catch (error) {

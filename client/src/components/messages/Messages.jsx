@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import TextInput from "./utils/TextInput";
+import TextInput from "../utils/TextInput";
 
 // Styled components
 const Container = styled.div`
