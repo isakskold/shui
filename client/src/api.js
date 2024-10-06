@@ -30,11 +30,12 @@ export const sendMessage = async (data) => {
   try {
     // Fetch the authentication session
     const session = await fetchAuthSession();
-
-    // Check if the session is valid and retrieve the JWT token
-    const token = session.tokens.accessToken; // Extract the access token
-    const userId = session.tokens.idToken; // The 'sub' claim is typically used as a unique user ID
-    const username = session.user.username; // Assuming this is where you get the username
+    // Extract the access token
+    const token = session.tokens.accessToken; // Access Token
+    // Extract the user ID from the accessToken payload
+    const userId = session.tokens.accessToken.payload.sub; // User ID
+    // Extract the username from the idToken payload
+    const username = session.tokens.idToken.payload["cognito:username"];
 
     if (!token || !userId || !username) {
       console.error("Error retrieving token, id, or username");
