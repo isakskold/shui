@@ -38,20 +38,17 @@ const LoadingText = styled.span`
 `;
 
 const PostMessage = ({ postMessage }) => {
-  const usernameRef = useRef(null);
   const textRef = useRef(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // State for loading
 
   const handlePostMessage = async (e) => {
     e.preventDefault();
-    const username = usernameRef.current.value;
     const text = textRef.current.value;
 
-    if (username && text) {
+    if (text) {
       setIsLoading(true); // Set loading state to true
-      await postMessage({ username, text }); // Assuming postMessage is a promise
-      usernameRef.current.value = ""; // Clear the input field
+      await postMessage({ text }); // Assuming postMessage is a promise
       textRef.current.value = ""; // Clear the textarea
       setIsFormVisible(false); // Hide the form after posting
       setIsLoading(false); // Reset loading state
@@ -67,12 +64,6 @@ const PostMessage = ({ postMessage }) => {
       {/* Show loading text */}
       {isFormVisible && (
         <Form onSubmit={handlePostMessage}>
-          <TextInput
-            ref={usernameRef} // Assign the ref
-            type="text"
-            placeholder="Username"
-            required
-          />
           <TextInput
             ref={textRef} // Assign the ref
             type="textarea"
