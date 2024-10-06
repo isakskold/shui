@@ -33,17 +33,21 @@ export const sendMessage = async (data) => {
 
     // Check if the session is valid and retrieve the JWT token
     const token = session.tokens.accessToken; // Extract the access token
-    // Retrieve the user's unique identifier (e.g., userId) from session or any user-specific data
     const userId = session.tokens.idToken; // The 'sub' claim is typically used as a unique user ID
-    if (!token || !userId) {
-      console.error("Error retrieving token or id");
-      throw new Error("Failed to retrieve the access token or user id.");
+    const username = session.user.username; // Assuming this is where you get the username
+
+    if (!token || !userId || !username) {
+      console.error("Error retrieving token, id, or username");
+      throw new Error(
+        "Failed to retrieve the access token, user id, or username."
+      );
     }
 
-    // Create the message payload with the user ID included
+    // Create the message payload with the user ID and username included
     const messagePayload = {
       ...data, // Include the existing message data
       userId: userId, // Link the message to the user who sent it
+      username: username, // Include the username
     };
 
     // Include the token in the request header with "Bearer" prefix
@@ -52,7 +56,6 @@ export const sendMessage = async (data) => {
         Authorization: `Bearer ${token}`, // Add "Bearer" prefix
       },
     });
-
     return response.data;
   } catch (error) {
     console.error("Error sending data:", error);
