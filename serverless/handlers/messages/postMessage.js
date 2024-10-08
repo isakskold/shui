@@ -3,46 +3,56 @@
 const docClient = require("../utils/dbClient");
 const { v4: uuidv4 } = require("uuid"); // For generating unique IDs
 const formatDate = require("../utils/formatDate");
+const verifyToken = require("../utils/verifyToken");
+const sendResponseToClient = require("../utils/sendResponseToClient");
 
 module.exports.handler = async (event) => {
   const requestBody = JSON.parse(event.body);
-  const { username, userId, text } = requestBody;
+  const { text } = requestBody; // Text content
+  // Extract userId and username from the authorizer claims
 
-  if (!username || !text || !userId) {
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: "Username, userId and text are required" }),
-    };
-  }
+  const authHeader = event.headers.authorization; // Get the Authorization header
 
-  const params = {
-    TableName: "MessagesTable",
-    Item: {
-      pk: "messages", // Constant partition key
-      id: uuidv4(), // Unique sort key (ID)
-      username, // Username from the request body
-      userId,
-      text, // Message text
-      createdAt: Date.now(), // Timestamp when the message was created
-    },
-  };
+  const token =
+    authHeader && authHeader.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : null; // Extract token
+
+  console.log(`Token: ${token}`);
 
   try {
+    const decoded = await verifyToken(token);
+
+    // Extract userId and username from decoded token
+    const userId = decoded.sub; // User ID from token
+    const username = decoded.username;
+    const messageId = uuidv4(); // Unique sort key (ID)
+
+    const params = {
+      TableName: "MessagesTable",
+      Item: {
+        pk: "messages", // Constant partition key
+        id: messageId,
+        username, // Username from the request body
+        userId,
+        text, // Message text
+        createdAt: Date.now(), // Timestamp when the message was created
+      },
+    };
+
     await docClient.put(params).promise();
-    return {
-      statusCode: 201,
-      body: JSON.stringify({
-        id: params.Item.id,
-        username: params.Item.username,
-        userId: params.Item.userId,
-        text: params.Item.text,
-        createdAt: formatDate(params.Item.createdAt),
-      }), // Return the created item
+
+    // Create a message object to return
+    const newMessage = {
+      id: messageId,
+      username,
+      text,
+      createdAt: formatDate(Date.now()), // Format date if needed
+      userId,
     };
+
+    return sendResponseToClient(201, "Message posted successfully", newMessage);
   } catch (err) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: err.message }),
-    };
+    return sendResponseToClient(500, "Unable to post message");
   }
 };

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import TextInput from "../utils/TextInput";
+import { deleteMessage, updateMessage } from "../../api";
+import useMessageStore from "../../hooks/useMessageStore"; // Import the store
 
 // Styled components
 const Container = styled.div`
@@ -52,10 +54,19 @@ const MessageActions = styled.div`
   flex-wrap: wrap;
 `;
 
-const LoadingText = styled.span`
+export const LoadingText = styled.span`
   font-size: 0.8rem;
   color: #777;
   margin: 0 0.5rem;
+`;
+
+export const ErrorText = styled.aside`
+  font-size: 1rem;
+  font-weight: 700;
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 0 0.2rem;
+  border-radius: 5px;
+  color: red;
 `;
 
 const UpdateForm = styled.form`
@@ -63,45 +74,89 @@ const UpdateForm = styled.form`
   overflow: hidden;
 `;
 
-const Messages = ({ messages, removeMessage, modifyMessage }) => {
+const Messages = () => {
+  const {
+    messages,
+    loading,
+    fetchMessages,
+    deleteMessage: removeMessage,
+    updateMessage: editMessage,
+  } = useMessageStore(); // Destructure from store
   const [currentMessageId, setCurrentMessageId] = useState(null);
-  const [loadingMessageId, setLoadingMessageId] = useState(null); // Tracks the message being updated
-  const [deletingMessageId, setDeletingMessageId] = useState(null); // Tracks the message being deleted
-  const textareaRef = useRef(null); // Add this line back
+  const [loadingMessageId, setLoadingMessageId] = useState(null);
+  const [loadingText, setLoadingText] = useState(null);
+  const [errorMessageId, setErrorMessageId] = useState(null);
+  const [errorText, setErrorText] = useState(null);
+  const textareaRef = useRef(null);
 
-  console.log(messages);
+  // Fetch messages when the component mounts
+  useEffect(() => {
+    const fetchMessagesWithErrorHandling = async () => {
+      try {
+        console.log("Fetching messages...");
 
-  const handleDelete = async (id) => {
-    setDeletingMessageId(id); // Set the deleting state
+        await fetchMessages(); // Await the async fetchMessages function
+      } catch (error) {
+        console.error("Error fetching messages:", error.message);
+        // Optionally display an error message to the user
+      }
+    };
 
+    fetchMessagesWithErrorHandling(); // Call the async function
+  }, [fetchMessages]);
+
+  const handleDelete = async (msg) => {
     try {
-      await removeMessage(id);
+      setLoadingMessageId(msg.id);
+      setLoadingText("Deleting...");
+      const response = await deleteMessage(msg.id); // Call your API to delete
+      console.log("%c" + response.message, "color: green;");
+      removeMessage(msg.id); // Update Zustand state
+    } catch (error) {
+      //Display error message to user
+      setErrorMessageId(msg.id);
+      setErrorText(error.message);
+
+      console.error("Error deleting message:", error.message);
     } finally {
-      setDeletingMessageId(null); // Reset after deletion
+      setLoadingText(null);
+      setLoadingMessageId(null);
     }
   };
 
   const handleEdit = (msg) => {
+    // Click on update button
     setCurrentMessageId(msg.id);
-    // Use setTimeout to ensure the textarea is rendered before accessing its value
     setTimeout(() => {
       if (textareaRef.current) {
-        textareaRef.current.value = msg.text; // This will now work correctly
+        textareaRef.current.value = msg.text;
       }
     }, 0);
   };
 
   const handleUpdate = async (e) => {
-    e.preventDefault(); // Prevent the form from reloading the page
+    // Submit updated text
+    e.preventDefault();
+    const updatedText = textareaRef.current.value;
+    setLoadingMessageId(currentMessageId);
+    setLoadingText("Updating...");
 
-    const updatedText = textareaRef.current.value; // Get the value from the textarea
-    setLoadingMessageId(currentMessageId); // Set the loading state for the message being updated
     try {
-      await modifyMessage(currentMessageId, { text: updatedText });
-      setCurrentMessageId(null); // Clear the current message ID after updating
-      textareaRef.current.value = ""; // Clear the textarea after submission
+      const response = await updateMessage(currentMessageId, {
+        text: updatedText,
+      }); // Call your API to update
+      console.log("%c" + response.message, "color: green;");
+      editMessage(currentMessageId, updatedText); // Update Zustand state
+      setCurrentMessageId(null);
+      textareaRef.current.value = "";
+    } catch (error) {
+      //Display error message to user
+      setErrorMessageId(currentMessageId);
+      setErrorText(error.message);
+      console.error("Error updating message:", error.message);
     } finally {
-      setLoadingMessageId(null); // Reset after update
+      setLoadingMessageId(null);
+      setLoadingText(null);
     }
   };
 
@@ -115,13 +170,14 @@ const Messages = ({ messages, removeMessage, modifyMessage }) => {
             <Timestamp>({msg.createdAt})</Timestamp>
             <MessageActions>
               <Button onClick={() => handleEdit(msg)}>Edit</Button>
-              <Button onClick={() => handleDelete(msg.id)}>Delete</Button>
-              {/* Conditionally show loading text for deleting */}
-              {deletingMessageId === msg.id && (
-                <LoadingText>Deleting...</LoadingText>
+              <Button onClick={() => handleDelete(msg)}>Delete</Button>
+
+              {/* Conditional renders for loading and error text */}
+              {loadingMessageId === msg.id && (
+                <LoadingText>{loadingText}</LoadingText>
               )}
+              {errorMessageId === msg.id && <ErrorText>{errorText}</ErrorText>}
             </MessageActions>
-            {/* Conditionally show the edit form inside the MessageItem */}
             {currentMessageId === msg.id && (
               <UpdateForm onSubmit={handleUpdate}>
                 <TextInput
@@ -131,10 +187,6 @@ const Messages = ({ messages, removeMessage, modifyMessage }) => {
                   required
                 />
                 <Button type="submit">Update Message</Button>
-                {/* Conditionally show loading text for updating */}
-                {loadingMessageId === msg.id && (
-                  <LoadingText>Updating...</LoadingText>
-                )}
               </UpdateForm>
             )}
           </MessageItem>

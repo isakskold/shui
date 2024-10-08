@@ -1,6 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import TextInput from "../utils/TextInput";
+import { sendMessage } from "../../api";
+import useMessageStore from "../../hooks/useMessageStore";
+import { LoadingText, ErrorText } from "./Messages";
 
 // Styled components
 const Container = styled.div`
@@ -31,16 +34,13 @@ const Form = styled.form`
   margin-top: 0.5rem;
 `;
 
-const LoadingText = styled.span`
-  font-size: 0.8rem;
-  color: #777;
-  margin: 0 0.5rem;
-`;
-
-const PostMessage = ({ postMessage }) => {
+const PostMessage = () => {
   const textRef = useRef(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // State for loading
+  const addMessage = useMessageStore((state) => state.addMessage); // Get the addMessage action from the store
+  const messages = useMessageStore((state) => state.messages);
+  const [errorText, setErrorText] = useState(null);
 
   const handlePostMessage = async (e) => {
     e.preventDefault();
@@ -48,12 +48,31 @@ const PostMessage = ({ postMessage }) => {
 
     if (text) {
       setIsLoading(true); // Set loading state to true
-      await postMessage({ text }); // Assuming postMessage is a promise
-      textRef.current.value = ""; // Clear the textarea
-      setIsFormVisible(false); // Hide the form after posting
-      setIsLoading(false); // Reset loading state
+      try {
+        const response = await sendMessage({ text });
+        console.log("%c" + response.message, "color: green;");
+
+        // Assuming the response contains the newly created message
+        addMessage(response.newMessage); // Update Zustand state with the new message
+
+        textRef.current.value = ""; // Clear the textarea
+        setIsFormVisible(false); // Hide the form after posting
+      } catch (error) {
+        setErrorText(error.message);
+        console.log(error);
+
+        console.error("Error posting message:", error.message);
+        // Optionally, show an error message to the user
+      } finally {
+        setIsLoading(false); // Reset loading state
+      }
     }
   };
+
+  // Log updated messages whenever the messages state changes
+  useEffect(() => {
+    console.log("Current messages in store:", messages);
+  }, [messages]); // Run this effect whenever messages change
 
   return (
     <Container>
@@ -61,7 +80,7 @@ const PostMessage = ({ postMessage }) => {
         Post a message
       </Button>
       {isLoading && <LoadingText>Posting message...</LoadingText>}{" "}
-      {/* Show loading text */}
+      {errorText !== null && <ErrorText>{errorText}</ErrorText>}
       {isFormVisible && (
         <Form onSubmit={handlePostMessage}>
           <TextInput

@@ -3,8 +3,9 @@ import axios from "axios";
 
 const API_BASE_URL = "https://a4vg2fyyoj.execute-api.eu-north-1.amazonaws.com";
 const API_KEY = import.meta.env.VITE_API_KEY;
-import { checkAuthStatus } from "./utils/checkIfSignedIn";
-import { fetchAuthSession } from "aws-amplify/auth";
+import catchErrorFromBackend from "./utils/catchErrorFromBackend";
+import catchSuccessFromBackend from "./utils/catchSuccessFromBackend";
+import { getSession } from "./utils/getAuthSession";
 
 // Create an instance of Axios with the base URL
 const apiClient = axios.create({
@@ -21,15 +22,15 @@ export const fetchMessages = async () => {
     const response = await apiClient.get("/messages");
     return response.data; // Axios automatically parses JSON
   } catch (error) {
-    console.error("Error fetching data:", error);
-    throw error;
+    throw catchErrorFromBackend(error.response?.status, error);
   }
 };
 
 export const sendMessage = async (data) => {
   try {
     // Fetch the authentication session
-    const session = await fetchAuthSession();
+    const session = await getSession("Please login to post a message");
+
     // Extract the access token
     const token = session.tokens.accessToken; // Access Token
     // Extract the user ID from the accessToken payload
@@ -44,11 +45,9 @@ export const sendMessage = async (data) => {
       );
     }
 
-    // Create the message payload with the user ID and username included
+    // Create the message payload
     const messagePayload = {
       ...data, // Include the existing message data
-      userId: userId, // Link the message to the user who sent it
-      username: username, // Include the username
     };
 
     // Include the token in the request header with "Bearer" prefix
@@ -57,34 +56,67 @@ export const sendMessage = async (data) => {
         Authorization: `Bearer ${token}`, // Add "Bearer" prefix
       },
     });
-    return response.data;
+
+    return catchSuccessFromBackend(
+      response.status,
+      response.data.message,
+      response.data.newMessage
+    );
   } catch (error) {
-    console.error("Error sending data:", error);
-    throw error;
+    console.log(error);
+
+    throw catchErrorFromBackend(
+      error.response?.status || error.statusCode,
+      error.response?.data?.message || error.message
+    );
   }
 };
 
 // Delete message from DynamoDB (using message ID)
 export const deleteMessage = async (id) => {
   try {
-    const response = await apiClient.delete(`/message/${id}`);
-    return response.data;
+    // Fetch the authentication session
+    const session = await getSession("Please login to delete message");
+
+    // Extract the access token
+    const token = session.tokens.accessToken; // Access Token
+
+    const response = await apiClient.delete(`/message/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Add "Bearer" prefix
+      },
+    });
+    return catchSuccessFromBackend(response.status, response.data.message);
   } catch (error) {
-    console.error(
-      "Error deleting message:",
-      error.response ? error.response.data : error
+    throw catchErrorFromBackend(
+      error.response?.status || error.statusCode,
+      error.response?.data?.message || error.message
     );
-    throw error;
   }
 };
 
 // Update message in DynamoDB (using message ID)
 export const updateMessage = async (id, data) => {
   try {
-    const response = await apiClient.put(`/message/${id}`, data);
-    return response.data;
+    // Fetch the authentication session
+    const session = await getSession("Please login to update message");
+    // Extract the access token
+    const token = session.tokens.accessToken; // Access Token
+
+    const response = await apiClient.put(`/message/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`, // Add "Bearer" prefix
+      },
+    });
+    return catchSuccessFromBackend(
+      response.status,
+      response.data.message,
+      response.data.newMessage
+    );
   } catch (error) {
-    console.error("Error updating message:", error);
-    throw error;
+    throw catchErrorFromBackend(
+      error.response?.status || error.statusCode,
+      error.response?.data?.message || error.message
+    );
   }
 };
