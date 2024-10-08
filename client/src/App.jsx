@@ -1,30 +1,18 @@
 import React from "react";
-import Messages from "./components/Messages";
-import PostMessage from "./components/PostMessage";
-import { useMessages } from "./hooks/useMessages";
 import "./globalStyles.css";
+import { Route, Routes } from "react-router-dom";
+import Home from "./routes/Home";
+import AuthComponent from "./routes/AmplifyUI";
+import Nav from "./components/headerNav/Nav";
 
 function App() {
-  const {
-    messages,
-    loading,
-    error,
-    postMessage,
-    removeMessage,
-    modifyMessage,
-  } = useMessages();
-
   return (
-    <>
-      <PostMessage postMessage={postMessage} />
-      <Messages
-        messages={messages}
-        loading={loading}
-        error={error}
-        removeMessage={removeMessage}
-        modifyMessage={modifyMessage}
-      />
-    </>
+    <div>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<AuthComponent />} /> {/* Amplify UI */}
+      </Routes>
+    </div>
   );
 }
 

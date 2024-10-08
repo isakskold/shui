@@ -7,35 +7,38 @@ provider:
   role: arn:aws:iam::586794470362:role/shuiRole
 
 functions:
+  # MESSAGE FUNCTIONS
   postMessage:
-    handler: handlers/postMessage.handler
+    handler: handlers/messages/postMessage.handler
     events:
       - httpApi:
           path: /message
           method: post
 
   updateMessage:
-    handler: handlers/updateMessage.handler
+    handler: handlers/messages/updateMessage.handler
     events:
       - httpApi:
           path: /message/{id}
           method: put
 
   deleteMessage:
-    handler: handlers/deleteMessage.handler
+    handler: handlers/messages/deleteMessage.handler
     events:
       - httpApi:
           path: /message/{id}
           method: delete
 
   getAllMessages:
-    handler: handlers/getAllMessages.handler
+    handler: handlers/messages/getAllMessages.handler
     events:
       - httpApi:
           path: /messages
           method: get
 
-  apiKeyAuthorizer: # Define your API Key authorizer
+  # UTIL FUNCTIONS
+
+  apiKeyAuthorizer: # Attached to routes in API Gateway. Prevents misuse of api.
     handler: handlers/utils/apiKeyAuthorizer.handler
 
 resources:
@@ -48,10 +51,10 @@ resources:
           - AttributeName: pk
             AttributeType: S
           - AttributeName: id
-            AttributeType: S # Sort key is now id
+            AttributeType: S
         KeySchema:
           - AttributeName: pk
             KeyType: HASH
           - AttributeName: id
-            KeyType: RANGE # id as the Sort Key
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST

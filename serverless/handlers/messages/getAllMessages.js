@@ -1,8 +1,7 @@
 "use strict";
 
-const AWS = require("aws-sdk");
-const docClient = new AWS.DynamoDB.DocumentClient();
-const formatDate = require("./utils/formatDate");
+const docClient = require("../utils/dbClient");
+const formatDate = require("../utils/formatDate");
 
 module.exports.handler = async () => {
   const params = {
