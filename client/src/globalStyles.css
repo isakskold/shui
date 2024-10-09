@@ -2,6 +2,8 @@
   background-color: rgba(87, 49, 115, 0.802);
   --primary-blue: #007bff;
   --primary-blue-hover: #0056b3;
+  --border-primary: 2px solid black;
+  --border-radius-primary: 8px;
 }
 
 * {
