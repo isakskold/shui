@@ -1,12 +1,8 @@
 import React from "react";
-import Nav from "../../headerNav/Nav";
+import Nav from "../../headerNav/layouts/DesktopNav";
 
 const Profile = () => {
-  return (
-    <div>
-      <Nav />
-    </div>
-  );
+  return <div></div>;
 };
 
 export default Profile;

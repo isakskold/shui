@@ -1,9 +1,10 @@
 :root {
-  background-color: rgba(87, 49, 115, 0.802);
+  background-color: rgba(8, 8, 8, 0.802);
   --primary-blue: #007bff;
   --primary-blue-hover: #0056b3;
   --border-primary: 2px solid black;
   --border-radius-primary: 8px;
+  --border-radius-secondary: 16px;
 }
 
 * {
@@ -16,7 +17,7 @@
 }
 
 body {
-  max-width: 800px;
+  width: auto;
   margin: 0 auto;
   padding: 0 3rem; /* Minimum space on left and right */
   overflow-x: hidden;
