@@ -9,7 +9,6 @@ const HeaderNav = styled.nav`
   top: 0;
   left: 0;
   width: 100vw;
-  height: 70px;
   background-color: black;
   display: flex;
   justify-content: flex-end;

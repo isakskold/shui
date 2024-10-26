@@ -8,6 +8,7 @@ import Profile from "./components/pages/profile/Profile";
 import Settings from "./components/pages/settings/Settings";
 import Notifications from "./components/pages/notifications/Notifications";
 import Nav from "./components/headerNav/Nav";
+import Message from "./components/pages/message/Message";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/notifications" element={<Notifications />} />
+        <Route path="/message/:id" element={<Message />} />
       </Routes>
     </>
   );

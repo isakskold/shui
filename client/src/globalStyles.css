@@ -29,6 +29,10 @@ body {
   }
 }
 
+#root {
+  height: 100%;
+}
+
 textarea,
 p,
 em,
