@@ -27,6 +27,7 @@ module.exports.handler = async (event) => {
     const userId = decoded.sub; // User ID from token
     const username = decoded.username;
     const messageId = uuidv4(); // Unique sort key (ID)
+    const { topic } = event.pathParameters;
 
     const params = {
       TableName: "MessagesTable",
@@ -36,6 +37,7 @@ module.exports.handler = async (event) => {
         username, // Username from the request body
         userId,
         text, // Message text
+        topic,
         createdAt: Date.now(), // Timestamp when the message was created
       },
     };
