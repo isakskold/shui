@@ -1,15 +1,14 @@
 import React from "react";
-import Nav from "../../headerNav/Nav";
+import styled from "styled-components";
 import Sidebar from "./sidebar/Sidebar";
 import Feed from "./feed/Feed";
+import PageWrapper from "../../utils/PageWrapper";
 
 const Home = () => {
   return (
-    <div>
-      <Nav></Nav>
-      <Sidebar></Sidebar>
+    <PageWrapper>
       <Feed></Feed>
-    </div>
+    </PageWrapper>
   );
 };
 

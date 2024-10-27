@@ -1,12 +1,8 @@
 import React from "react";
-import Nav from "../../headerNav/Nav";
+import Nav from "../../headerNav/layouts/DesktopNav";
 
 const Settings = () => {
-  return (
-    <div>
-      <Nav />
-    </div>
-  );
+  return <div></div>;
 };
 
 export default Settings;
