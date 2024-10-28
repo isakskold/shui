@@ -6,6 +6,7 @@ import useBurgerStore from "../../../hooks/nav/useBurgerStore";
 import useMenuStore from "../../../hooks/nav/useMenuStore";
 import BurgerButton from "../utils/BurgerBtn";
 import MobileMenu from "../utils/MobileMenu";
+import Searchbar from "../utils/searchbar/Searchbar";
 
 const HamburgerIcon = styled.svg`
   cursor: pointer; /* Add pointer cursor to indicate it's clickable */
@@ -45,6 +46,7 @@ const MobileNav = () => {
           />
         </HamburgerIcon>
       </BurgerButton>
+      <Searchbar />
 
       <MobileMenu></MobileMenu>
       <SignInSignOutButton />
