@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
-import TextInput from "../utils/TextInput";
-import { sendMessage } from "../../api";
-import useMessageStore from "../../hooks/useMessageStore";
-import { LoadingText, ErrorText } from "./Messages";
+import TextInput from "../../../utils/TextInput";
+import { sendMessage } from "../../../../api";
+import useMessageStore from "../../../../hooks/useMessageStore";
+import { LoadingText, ErrorText } from "../../../messages/Messages";
+import { useParams } from "react-router-dom";
 
-// Styled components
-const Container = styled.div`
+// Styled Components
+const PostMessageStyled = styled.div`
   padding: 20px;
   background-color: #f9f9f9;
   border-radius: 8px;
@@ -35,10 +36,11 @@ const Form = styled.form`
 `;
 
 const PostMessage = () => {
+  const { topic } = useParams();
   const textRef = useRef(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // State for loading
-  const addMessage = useMessageStore((state) => state.addMessage); // Get the addMessage action from the store
+  const [isLoading, setIsLoading] = useState(false);
+  const addMessage = useMessageStore((state) => state.addMessage);
   const messages = useMessageStore((state) => state.messages);
   const [errorText, setErrorText] = useState(null);
 
@@ -47,24 +49,19 @@ const PostMessage = () => {
     const text = textRef.current.value;
 
     if (text) {
-      setIsLoading(true); // Set loading state to true
+      setIsLoading(true);
       try {
-        const response = await sendMessage({ text });
+        const response = await sendMessage({ text }, topic);
         console.log("%c" + response.message, "color: green;");
 
-        // Assuming the response contains the newly created message
-        addMessage(response.newMessage); // Update Zustand state with the new message
-
-        textRef.current.value = ""; // Clear the textarea
-        setIsFormVisible(false); // Hide the form after posting
+        addMessage(response.newMessage); // Add new message to store
+        textRef.current.value = ""; // Clear input
+        setIsFormVisible(false); // Hide form after posting
       } catch (error) {
         setErrorText(error.message);
-        console.log(error);
-
         console.error("Error posting message:", error.message);
-        // Optionally, show an error message to the user
       } finally {
-        setIsLoading(false); // Reset loading state
+        setIsLoading(false);
       }
     }
   };
@@ -72,19 +69,19 @@ const PostMessage = () => {
   // Log updated messages whenever the messages state changes
   useEffect(() => {
     console.log("Current messages in store:", messages);
-  }, [messages]); // Run this effect whenever messages change
+  }, [messages]);
 
   return (
-    <Container>
+    <PostMessageStyled>
       <Button onClick={() => setIsFormVisible((prev) => !prev)}>
         Post a message
       </Button>
-      {isLoading && <LoadingText>Posting message...</LoadingText>}{" "}
-      {errorText !== null && <ErrorText>{errorText}</ErrorText>}
+      {isLoading && <LoadingText>Posting message...</LoadingText>}
+      {errorText && <ErrorText>{errorText}</ErrorText>}
       {isFormVisible && (
         <Form onSubmit={handlePostMessage}>
           <TextInput
-            ref={textRef} // Assign the ref
+            ref={textRef}
             type="textarea"
             placeholder="Your message"
             required
@@ -92,7 +89,7 @@ const PostMessage = () => {
           <Button type="submit">Publish message</Button>
         </Form>
       )}
-    </Container>
+    </PostMessageStyled>
   );
 };
 

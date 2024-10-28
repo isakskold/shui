@@ -26,7 +26,7 @@ export const fetchMessages = async () => {
   }
 };
 
-export const sendMessage = async (data) => {
+export const sendMessage = async (data, topic) => {
   try {
     // Fetch the authentication session
     const session = await getSession("Please login to post a message");
@@ -51,11 +51,15 @@ export const sendMessage = async (data) => {
     };
 
     // Include the token in the request header with "Bearer" prefix
-    const response = await apiClient.post("/message", messagePayload, {
-      headers: {
-        Authorization: `Bearer ${token}`, // Add "Bearer" prefix
-      },
-    });
+    const response = await apiClient.post(
+      `/message?topic=${topic}`,
+      messagePayload,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Add "Bearer" prefix
+        },
+      }
+    );
 
     return catchSuccessFromBackend(
       response.status,

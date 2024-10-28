@@ -36,7 +36,7 @@ const HeaderNav = styled.nav`
 const DesktopNav = () => {
   return (
     <HeaderNav>
-      <HeaderLink to="/home">Logo</HeaderLink>
+      <HeaderLink to="/">Logo</HeaderLink>
       <Searchbar></Searchbar>
       <HeaderLink to="/notifications">Noti</HeaderLink>
       <HeaderLink to="/settings">Setti</HeaderLink>

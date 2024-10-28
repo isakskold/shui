@@ -27,7 +27,12 @@ module.exports.handler = async (event) => {
     const userId = decoded.sub; // User ID from token
     const username = decoded.username;
     const messageId = uuidv4(); // Unique sort key (ID)
-    const { topic } = event.pathParameters;
+    const { topic } = event.queryStringParameters;
+
+    // Check if the topic is valid
+    if (!["frontend", "backend", "general"].includes(topic)) {
+      return sendResponseToClient(400, "Invalid topic provided");
+    }
 
     const params = {
       TableName: "MessagesTable",
