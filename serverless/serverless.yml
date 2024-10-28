@@ -30,7 +30,7 @@ functions:
           method: delete
 
   getAllMessages:
-    handler: handlers/messages/getAllMessages.handler
+    handler: handlers/messages/getMessagesByTopic.handler
     events:
       - httpApi:
           path: /messages
@@ -68,7 +68,7 @@ resources:
           - AttributeName: topic
             AttributeType: S
           - AttributeName: createdAt
-            AttributeType: S
+            AttributeType: N
         KeySchema:
           - AttributeName: pk
             KeyType: HASH

@@ -1,6 +1,6 @@
 // src/store/useMessageStore.js
 import { create } from "zustand";
-import { fetchMessages } from "../api";
+import { fetchMessages } from "../api/api";
 
 const useMessageStore = create((set) => ({
   messages: [],

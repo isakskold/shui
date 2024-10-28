@@ -3,12 +3,12 @@ import axios from "axios";
 
 const API_BASE_URL = "https://a4vg2fyyoj.execute-api.eu-north-1.amazonaws.com";
 const API_KEY = import.meta.env.VITE_API_KEY;
-import catchErrorFromBackend from "./utils/catchErrorFromBackend";
-import catchSuccessFromBackend from "./utils/catchSuccessFromBackend";
-import { getSession } from "./utils/getAuthSession";
+import catchErrorFromBackend from "../utils/catchErrorFromBackend";
+import catchSuccessFromBackend from "../utils/catchSuccessFromBackend";
+import { getSession } from "../utils/getAuthSession";
 
 // Create an instance of Axios with the base URL
-const apiClient = axios.create({
+export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",

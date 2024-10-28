@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import TextInput from "../../../utils/TextInput";
-import { sendMessage } from "../../../../api";
+import { sendMessage } from "../../../../api/api";
 import useMessageStore from "../../../../hooks/useMessageStore";
 import { LoadingText, ErrorText } from "../../../messages/Messages";
 import { useParams } from "react-router-dom";
@@ -38,6 +38,7 @@ const Form = styled.form`
 const PostMessage = () => {
   const { topic } = useParams();
   const textRef = useRef(null);
+  const titleRef = useRef(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const addMessage = useMessageStore((state) => state.addMessage);
@@ -47,14 +48,20 @@ const PostMessage = () => {
   const handlePostMessage = async (e) => {
     e.preventDefault();
     const text = textRef.current.value;
+    const title = titleRef.current.value;
 
-    if (text) {
+    if (errorText !== null) {
+      setErrorText(null);
+    }
+
+    if (text && title) {
       setIsLoading(true);
       try {
-        const response = await sendMessage({ text }, topic);
+        const response = await sendMessage({ title, text }, topic);
         console.log("%c" + response.message, "color: green;");
 
         addMessage(response.newMessage); // Add new message to store
+        titleRef.current.value = "";
         textRef.current.value = ""; // Clear input
         setIsFormVisible(false); // Hide form after posting
       } catch (error) {
@@ -81,9 +88,15 @@ const PostMessage = () => {
       {isFormVisible && (
         <Form onSubmit={handlePostMessage}>
           <TextInput
+            ref={titleRef} // A new ref for title input if needed
+            type="text" // Render as single-line input
+            placeholder="Message title..."
+            required
+          />
+          <TextInput
             ref={textRef}
             type="textarea"
-            placeholder="Your message"
+            placeholder="Your message..."
             required
           />
           <Button type="submit">Publish message</Button>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import TextInput from "../utils/TextInput";
-import { deleteMessage, updateMessage } from "../../api";
+import { deleteMessage, updateMessage } from "../../api/api";
 import useMessageStore from "../../hooks/useMessageStore"; // Import the store
 
 // Styled components

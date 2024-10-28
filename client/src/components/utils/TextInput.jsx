@@ -63,8 +63,8 @@ const TextInput = forwardRef(
       <StyledInput
         placeholder={placeholder}
         value={value}
-        required={required}
         ref={ref}
+        required={required}
       />
     );
   }

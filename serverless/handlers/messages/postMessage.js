@@ -8,7 +8,8 @@ const sendResponseToClient = require("../utils/sendResponseToClient");
 
 module.exports.handler = async (event) => {
   const requestBody = JSON.parse(event.body);
-  const { text } = requestBody; // Text content
+  console.log("Request Body:", requestBody);
+  const { title, text } = requestBody; // Text content
   // Extract userId and username from the authorizer claims
 
   const authHeader = event.headers.authorization; // Get the Authorization header
@@ -41,6 +42,7 @@ module.exports.handler = async (event) => {
         id: messageId,
         username, // Username from the request body
         userId,
+        title,
         text, // Message text
         topic,
         createdAt: Date.now(), // Timestamp when the message was created
@@ -53,6 +55,7 @@ module.exports.handler = async (event) => {
     const newMessage = {
       id: messageId,
       username,
+      title,
       text,
       createdAt: formatDate(Date.now()), // Format date if needed
       userId,
@@ -60,6 +63,7 @@ module.exports.handler = async (event) => {
 
     return sendResponseToClient(201, "Message posted successfully", newMessage);
   } catch (err) {
+    console.error("Error details:", err);
     return sendResponseToClient(500, "Unable to post message");
   }
 };
