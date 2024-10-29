@@ -6,13 +6,4 @@ const useLayoutStore = create((set) => ({
   setMobile: (isMobile) => set({ isMobile }),
 }));
 
-// Example of a subscription (equivalent to useEffect)
-useLayoutStore.subscribe((state) => {
-  if (state.isLayout) {
-    console.log("Layout: Mobile");
-  } else {
-    console.log("Layout: Desktop");
-  }
-});
-
 export default useLayoutStore;

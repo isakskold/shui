@@ -1,10 +1,10 @@
 // Utility function to handle successful responses from the backend
-const catchSuccessFromBackend = (statusCode, message, newMessage = null) => {
-  if (newMessage) {
+const catchSuccessFromBackend = (statusCode, message, content = null) => {
+  if (content) {
     return {
       statusCode,
       message, // Success message
-      newMessage, // Actual text message
+      content, // Actual text message
     };
   }
 

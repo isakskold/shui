@@ -3,12 +3,15 @@ import catchErrorFromBackend from "../utils/catchErrorFromBackend";
 import catchSuccessFromBackend from "../utils/catchSuccessFromBackend";
 
 // Fetch messages from DynamoDB
-export const fetchMessagesByTopic = async (topic, limit = 10) => {
+export const fetchSingleMessage = async (id) => {
   try {
-    const response = await apiClient.get(
-      `/messages?topic=${topic}&limit=${limit}`
-    );
-    return response.data; // Axios automatically parses JSON
+    const response = await apiClient.get(`/message/${id}`);
+
+    return catchSuccessFromBackend(
+      response.status,
+      response.data.message,
+      response.data.content
+    ); // Axios automatically parses JSON
   } catch (error) {
     throw catchErrorFromBackend(
       error.response?.status || error.statusCode,

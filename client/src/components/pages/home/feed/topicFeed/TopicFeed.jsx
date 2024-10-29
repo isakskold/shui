@@ -25,7 +25,7 @@ const TopicFeed = ({ topic, messages }) => {
         <MessagePreview
           key={index}
           title={message.title}
-          content={message.content}
+          text={message.text}
           id={message.id}
         />
       ))}

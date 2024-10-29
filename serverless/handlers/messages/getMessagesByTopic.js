@@ -5,7 +5,7 @@ const formatDate = require("../utils/formatDate");
 
 module.exports.handler = async (event) => {
   try {
-    const { topic } = event.queryStringParameters;
+    const { topic, limit } = event.queryStringParameters;
     const params = {
       TableName: "MessagesTable",
       IndexName: "TopicCreatedAtIndex",
@@ -13,7 +13,7 @@ module.exports.handler = async (event) => {
       ExpressionAttributeValues: {
         ":topic": topic,
       },
-      Limit: 10, // Get only the latest 10 messages
+      Limit: limit, // Get only the latest 10 messages
       ScanIndexForward: false, // Sort in descending order by createdAt
     };
 

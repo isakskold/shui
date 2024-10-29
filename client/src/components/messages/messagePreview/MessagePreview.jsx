@@ -34,11 +34,11 @@ const PostContentPreviewStyled = styled.p`
   grid-column: span 2;
 `;
 
-const MessagePreview = ({ id, title, content, username }) => {
+const MessagePreview = ({ id, title, text, username }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    const messageToStore = { id, title, content, username }; // Replace with actual message data
+    const messageToStore = { id, title, text, username }; // Replace with actual message data
     useNavigateMessageStore.getState().setMessage(messageToStore); // Set the message
 
     navigate(`/message/${id}`); // Navigate to /message/:id
@@ -59,7 +59,7 @@ const MessagePreview = ({ id, title, content, username }) => {
     >
       <PostTitleStyled>{title}</PostTitleStyled>
       <PostedByStyled>Posted by: {username}</PostedByStyled>
-      <PostContentPreviewStyled>{content}</PostContentPreviewStyled>
+      <PostContentPreviewStyled>{text}</PostContentPreviewStyled>
     </PostPreviewStyled>
   );
 };

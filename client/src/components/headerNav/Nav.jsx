@@ -17,9 +17,6 @@ const Nav = () => {
     setMobile(isMobileQuery);
   }, [isMobileQuery, setMobile]); // Dependency on isMobileQuery and setMobile
 
-  // Log the rendering choice
-  console.log("Rendering:", isMobile ? "MobileNav" : "DesktopNav");
-
   return isMobile ? <MobileNav /> : <DesktopNav />;
 };
 

@@ -29,6 +29,13 @@ functions:
           path: /message/{id}
           method: delete
 
+  getSingleMessage:
+    handler: handlers/messages/getSingleMessage.handler
+    events:
+      - httpApi:
+          path: /message/{id}
+          method: get
+
   getAllMessages:
     handler: handlers/messages/getMessagesByTopic.handler
     events:

@@ -26,7 +26,6 @@ const PostedByStyled = styled.p`
 
 const PostContentExpandedStyled = styled.p`
   font-size: 1rem;
-  height: 5rem;
   grid-column: span 2;
 `;
 

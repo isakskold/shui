@@ -19,7 +19,7 @@ const TopicFeed = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const messages = await fetchMessagesByTopic(topic);
+        const messages = await fetchMessagesByTopic(topic, 10);
         console.log(messages);
         if (messages.message) {
           // Check if the response indicates no messages
@@ -55,7 +55,7 @@ const TopicFeed = () => {
             key={message.id}
             id={message.id}
             title={message.title}
-            content={message.text}
+            text={message.text}
             username={message.username}
           />
         ))
